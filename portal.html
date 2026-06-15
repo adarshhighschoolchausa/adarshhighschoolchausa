@@ -85,7 +85,7 @@
                                 <th class="px-6 py-4">Marks</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100 text-sm">
+                        <tbody id="marks-table-body" class="divide-y divide-gray-100 text-sm">
                             <tr><td class="px-6 py-4 text-left font-bold border-r">Mathematics</td><td id="disp-math" class="px-6 py-4"></td></tr>
                             <tr><td class="px-6 py-4 text-left font-bold border-r">Science</td><td id="disp-sci" class="px-6 py-4"></td></tr>
                             <tr><td class="px-6 py-4 text-left font-bold border-r">English</td><td id="disp-eng" class="px-6 py-4"></td></tr>
@@ -143,22 +143,22 @@
                         document.getElementById('disp-class').innerText = data.class;
 
                         const subjects = [
-                            { id: 'disp-math',   key: 'math' },
-                            { id: 'disp-sci',    key: 'science' },
-                            { id: 'disp-eng',    key: 'english' },
-                            { id: 'disp-hindi',  key: 'hindi' },
-                            { id: 'disp-sst',    key: 'sst' },
-                            { id: 'disp-phil',   key: 'philosophy' },
-                            { id: 'disp-hist',   key: 'history' },
-                            { id: 'disp-geog',   key: 'geography' },
-                            { id: 'disp-polsci', key: 'politicalScience' },
-                            { id: 'disp-psych',  key: 'psychology' },
-                            { id: 'disp-bst',    key: 'bst' },
-                            { id: 'disp-acc',    key: 'accountancy' },
-                            { id: 'disp-ep',     key: 'entrepreneurship' },
-                            { id: 'disp-phy',    key: 'physics' },
-                            { id: 'disp-chem',   key: 'chemistry' },
-                            { id: 'disp-bio',    key: 'biology' }
+                            { id: 'disp-math',    key: 'math' },
+                            { id: 'disp-sci',     key: 'science' },
+                            { id: 'disp-eng',     key: 'english' },
+                            { id: 'disp-hindi',   key: 'hindi' },
+                            { id: 'disp-sst',     key: 'sst' },
+                            { id: 'disp-phil',    key: 'philosophy' },
+                            { id: 'disp-hist',    key: 'history' },
+                            { id: 'disp-geog',    key: 'geography' },
+                            { id: 'disp-polsci',  key: 'politicalScience' },
+                            { id: 'disp-psych',   key: 'psychology' },
+                            { id: 'disp-bst',     key: 'bst' },
+                            { id: 'disp-acc',     key: 'accountancy' },
+                            { id: 'disp-ep',      key: 'entrepreneurship' },
+                            { id: 'disp-phy',     key: 'physics' },
+                            { id: 'disp-chem',    key: 'chemistry' },
+                            { id: 'disp-bio',     key: 'biology' }
                         ];
 
                         let totalMarks = 0;
@@ -166,17 +166,24 @@
 
                         subjects.forEach(sub => {
                             const score = data[sub.key];
-                            document.getElementById(sub.id).innerText = score;
+                            const cell = document.getElementById(sub.id);
+                            const row = cell ? cell.closest('tr') : null;
 
-                            // Only count subjects that have actual numeric marks
-                            if (score !== "N/A" && score !== "" && !isNaN(score)) {
-                                totalMarks += Number(score);
-                                validSubjectCount++;
+                            if (row) {
+                                // Safe-check: ensure score exists, is not empty, and is a valid number
+                                if (score !== undefined && score !== null && score !== "N/A" && score !== "" && !isNaN(score)) {
+                                    cell.innerText = score;
+                                    totalMarks += Number(score);
+                                    validSubjectCount++;
+                                    row.classList.remove('hidden'); // Show subject row if active
+                                } else {
+                                    cell.innerText = "N/A";
+                                    row.classList.add('hidden'); // Hide subject row if not taken by the student
+                                }
                             }
                         });
 
                         if (validSubjectCount > 0) {
-                            // Each subject is out of 100; total possible = 100 × number of valid subjects
                             const totalPossible = validSubjectCount * 100;
                             const percentage = ((totalMarks / totalPossible) * 100).toFixed(2);
 
