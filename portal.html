@@ -40,7 +40,6 @@
     </header>
 
     <main class="flex-grow">
-
         <section id="loginSection" class="py-12 px-4">
             <div class="max-w-md mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
                 <div class="bg-school-blue p-6 text-center text-white">
@@ -170,15 +169,19 @@
                             const row = cell ? cell.closest('tr') : null;
 
                             if (row) {
-                                // Safe-check: ensure score exists, is not empty, and is a valid number
-                                if (score !== undefined && score !== null && score !== "N/A" && score !== "" && !isNaN(score)) {
-                                    cell.innerText = score;
-                                    totalMarks += Number(score);
+                                // Convert to string and trim to handle empty spaces safely
+                                const scoreStr = (score !== undefined && score !== null) ? score.toString().trim() : "";
+                                // Strict check to filter out N/A and blank entries
+                                const isHidden = scoreStr.toUpperCase() === "N/A" || scoreStr === "";
+                                const parsedScore = parseFloat(scoreStr);
+
+                                if (!isHidden && !isNaN(parsedScore)) {
+                                    cell.innerText = parsedScore;
+                                    totalMarks += parsedScore;
                                     validSubjectCount++;
                                     row.classList.remove('hidden'); // Show subject row if active
                                 } else {
-                                    cell.innerText = "N/A";
-                                    row.classList.add('hidden'); // Hide subject row if not taken by the student
+                                    row.classList.add('hidden'); // Fully hide subject row if N/A or blank
                                 }
                             }
                         });
