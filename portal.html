@@ -40,7 +40,7 @@
     </header>
 
     <main class="flex-grow">
-        
+
         <section id="loginSection" class="py-12 px-4">
             <div class="max-w-md mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
                 <div class="bg-school-blue p-6 text-center text-white">
@@ -103,14 +103,13 @@
                             <tr><td class="px-6 py-4 text-left font-bold border-r">Chemistry</td><td id="disp-chem" class="px-6 py-4"></td></tr>
                             <tr><td class="px-6 py-4 text-left font-bold border-r">Biology</td><td id="disp-bio" class="px-6 py-4"></td></tr>
                             <tr class="bg-yellow-50 font-black text-school-blue border-t-2">
-    <td class="px-6 py-4 text-left border-r">TOTAL</td>
-    <td id="disp-total" class="px-6 py-4"></td>
-</tr>
-
-<tr class="bg-green-50 font-black text-green-700 border-t">
-    <td class="px-6 py-4 text-left border-r">PERCENTAGE</td>
-    <td id="disp-percentage" class="px-6 py-4"></td>
-</tr>
+                                <td class="px-6 py-4 text-left border-r">TOTAL</td>
+                                <td id="disp-total" class="px-6 py-4"></td>
+                            </tr>
+                            <tr class="bg-green-50 font-black text-green-700 border-t">
+                                <td class="px-6 py-4 text-left border-r">PERCENTAGE</td>
+                                <td id="disp-percentage" class="px-6 py-4"></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -124,8 +123,7 @@
     </main>
 
     <script>
-        // Deployment URL
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlYrwpQGlAP_TiCGz6LfqKxlrTBn7-g0xsZFWd362jnFSsmpnUywUuAcWuQtxjGJ66/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwRNX_MLxmIK3hmb1CuWv_z024P4lWPk6XTUuhwkIlSp07-xXweze2mnFUcHRCYlTDt/exec";
 
         document.getElementById('portalForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -139,46 +137,55 @@
             fetch(`${SCRIPT_URL}?roll=${encodeURIComponent(roll)}&name=${encodeURIComponent(name)}`)
                 .then(res => res.json())
                 .then(data => {
-                    if(data.status === "success") {
+                    if (data.status === "success") {
                         document.getElementById('disp-name').innerText = data.name;
                         document.getElementById('disp-roll').innerText = roll;
                         document.getElementById('disp-class').innerText = data.class;
 
-                        // Subject mapping configuration list array to process everything easily
                         const subjects = [
-                            { id: 'disp-math', key: 'math' },
-                            { id: 'disp-sci', key: 'science' },
-                            { id: 'disp-eng', key: 'english' },
-                            { id: 'disp-hindi', key: 'hindi' },
-                            { id: 'disp-sst', key: 'sst' },
-                            { id: 'disp-phil', key: 'philosophy' },
-                            { id: 'disp-hist', key: 'history' },
-                            { id: 'disp-geog', key: 'geography' },
+                            { id: 'disp-math',   key: 'math' },
+                            { id: 'disp-sci',    key: 'science' },
+                            { id: 'disp-eng',    key: 'english' },
+                            { id: 'disp-hindi',  key: 'hindi' },
+                            { id: 'disp-sst',    key: 'sst' },
+                            { id: 'disp-phil',   key: 'philosophy' },
+                            { id: 'disp-hist',   key: 'history' },
+                            { id: 'disp-geog',   key: 'geography' },
                             { id: 'disp-polsci', key: 'politicalScience' },
-                            { id: 'disp-psych', key: 'psychology' },
-                            { id: 'disp-bst', key: 'bst' },
-                            { id: 'disp-acc', key: 'accountancy' },
-                            { id: 'disp-ep', key: 'entrepreneurship' },
-                            { id: 'disp-phy', key: 'physics' },
-                            { id: 'disp-chem', key: 'chemistry' },
-                            { id: 'disp-bio', key: 'biology' }
+                            { id: 'disp-psych',  key: 'psychology' },
+                            { id: 'disp-bst',    key: 'bst' },
+                            { id: 'disp-acc',    key: 'accountancy' },
+                            { id: 'disp-ep',     key: 'entrepreneurship' },
+                            { id: 'disp-phy',    key: 'physics' },
+                            { id: 'disp-chem',   key: 'chemistry' },
+                            { id: 'disp-bio',    key: 'biology' }
                         ];
 
                         let totalMarks = 0;
-                        let validMarksFound = false;
+                        let validSubjectCount = 0;
 
-                        // Render marks and dynamically compile totals cleanly
                         subjects.forEach(sub => {
                             const score = data[sub.key];
                             document.getElementById(sub.id).innerText = score;
-                            
+
+                            // Only count subjects that have actual numeric marks
                             if (score !== "N/A" && score !== "" && !isNaN(score)) {
                                 totalMarks += Number(score);
-                                validMarksFound = true;
+                                validSubjectCount++;
                             }
                         });
 
-                        document.getElementById('disp-total').innerText = validMarksFound ? totalMarks : "N/A";
+                        if (validSubjectCount > 0) {
+                            // Each subject is out of 100; total possible = 100 × number of valid subjects
+                            const totalPossible = validSubjectCount * 100;
+                            const percentage = ((totalMarks / totalPossible) * 100).toFixed(2);
+
+                            document.getElementById('disp-total').innerText = totalMarks + " / " + totalPossible;
+                            document.getElementById('disp-percentage').innerText = percentage + "%";
+                        } else {
+                            document.getElementById('disp-total').innerText = "N/A";
+                            document.getElementById('disp-percentage').innerText = "N/A";
+                        }
 
                         document.getElementById('loginSection').classList.add('hidden');
                         document.getElementById('resultSection').classList.remove('hidden');
